@@ -1,7 +1,7 @@
 # bibliotecaCACHE
 BIBLIOTECA VIRTUAL DESENVOLVIDA EM CACHÉ OBJECT SCRIPT
 - COMPLETO-
-===================================================
+
 Essa Rotina foi desenvolvida como um aprendizado, estarei sempre buscando melhorá-la e qualquer crítica irá me ajudar a melhorar
 o código para deixá-lo mais limpo e mais funcional para os usuários.
 
