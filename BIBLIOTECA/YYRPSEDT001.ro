@@ -1,0 +1,156 @@
+IRIS for Windows^MAC^routine output by %apiRTN^^~Format=IRIS.S~^RAW
+%RO on 14 Jul 2023 09:56:24PM
+YYRPSEDT001^MAC^^66669,9824.5726754^0
+YYRPSEDT001	;	[ROTINA CADASTRO DE EDITORA]
+			;
+			;
+			;
+			;	[INICIA VARIÁVEIS DA ROTINA E LEVA A LABEL 9000]
+0000		new (idEditora,nomeEditora,CONFIRMA,DADOS,EDITORA)
+			;
+			;
+			;
+			;
+			goto 9000
+			;
+			;	[LABEL 0500 INÍCIO DO PROGRAMA - CÓDIGO DA EDITORA]
+0500		write #											;[LIMPA TELA]
+			write !, "------ CADASTRO DE EDITORA ------"
+			write !
+			set editoras=""
+			set codEditoras=""
+			for  set editoras=$ORDER(^YYRPSEDT001(editoras)) quit:editoras=""  do
+			. set codEditoras=$INCREMENT(codEditoras)
+			set idEditora = codEditoras + 1
+			goto 1000
+			;
+			;	[LABEL 1000 - DESCRIÇÃO DA EDITORA]
+1000		write #											;[LIMPA TELA]
+			write !, "------ CADASTRO DE EDITORA ------"
+			write !
+			write !											;[PULA LINHA]
+			write !, "CÓDIGO EDITORA: "_idEditora
+			write !, "NOME DA EDITORA:"
+			write !											;[PULA LINHA]
+			read nomeEditora
+			;
+			if nomeEditora="" do  goto 1000
+			. write !											;[PULA LINHA]
+			. write !, "PREENCHA O NOME."
+			. write !											;[PULA LINHA]
+			. hang 1.5
+			. write #											;[LIMPA TELA]
+			;
+			;	[LABEL 1500 - CONDIÇÃO PARA SALVAR DADOS NA GLOBAL]
+1500		write #											;[LIMPA TELA]
+			write !, "------ CADASTRO DE EDITORA ------"
+			write !
+			write !											;[PULA LINHA]
+			write !, "DESEJA SALVAR OS DADOS ?[S/N]"
+			write !											;[PULA LINHA]
+			read CONFIRMA
+			;											;[LIMPA TELA]
+			if $ZCONVERT(CONFIRMA,"l")="sim" ! ($ZCONVERT(CONFIRMA,"l")="s") do  goto 3000
+			. write !											;[PULA LINHA]
+			. write !, "SALVANDO DADOS..."
+			. write !											;[PULA LINHA]
+			. hang 1.5
+			. write #											;[LIMPA TELA]
+			if $ZCONVERT(CONFIRMA,"l")="nao" ! ($ZCONVERT(CONFIRMA,"l")="n") do  goto 9000^YYRPSBIB001
+			. write !, "REINICIANDO PROGRAMA..."
+			. hang 1.5
+			write !											;[PULA LINHA]
+			write !, "OPÇÃO INVÁLIDA!"
+			goto 1500
+			;
+			;	[LABEL 3000 - SALVA DADOS NA GLOBAL]
+3000		write #											;[LIMPA TELA]
+			write !, "------ CADASTRO DE EDITORA ------"
+			write !											;[PULA LINHA]
+			set $PIECE(DADOS,"^",1)=nomeEditora
+			set ^YYRPSEDT001(idEditora)=DADOS
+			write !, "DADOS SALVOS COM SUCESSO!"
+			write !											;[PULA LINHA]
+			write !, "CÓDIGO: "_idEditora
+			write !											;[PULA LINHA]
+			write !, "NOME DA EDITORA: "_$PIECE(^YYRPSEDT001(idEditora),"^",1)
+			write !, "DESEJA CADASTRAR UMA NOVA EDITORA?[S/N]"
+			write !											;[PULA LINHA]
+			read CONFIRMA
+			if $ZCONVERT(CONFIRMA,"l")="s" ! ($ZCONVERT(CONFIRMA,"l")="sim") do  goto 0500
+			. write !											;[PULA LINHA]
+			. write !, "UM INSTANTE..."
+			. hang 2.0
+			if $ZCONVERT(CONFIRMA,"l")="n" ! ($ZCONVERT(CONFIRMA,"l")="nao") do  goto 9000^YYRPSBIB001
+			. write !											;[PULA LINHA]
+			. write !, "ENCERRANDO..."
+			. hang 2.0
+			write !											;[PULA LINHA]
+			write !, "OPÇÃO INVÁLIDA!"
+			goto 3000
+			;
+			;	[CONSULTA DADOS NA TABELA]
+8000		write #											;[LIMPA TELA]
+			write !, "------ CADASTRO DE EDITORA ------"
+			write !											;[PULA LINHA]
+			write !, "CÓDIGO: "_EDITORA
+			write !											;[PULA LINHA]
+			write !, "NOME DA EDITORA: "_$PIECE(^YYRPSEDT001(EDITORA),"^",1)
+			write !											;[PULA LINHA]
+			write !											;[PULA LINHA]
+			write !, "O QUE DESEJA FAZER?"
+			write !											;[PULA LINHA]
+			write !, "[1] EXCLUIR"
+			write !, "[2] ALTERAR"
+			write !, "[3] CADASTRAR NOVA EDITORA"
+			write !											;[PULA LINHA]
+			write !, ":"
+			read CONFIRMA
+			if CONFIRMA=1  goto EXCLUIR
+			if CONFIRMA=2  goto 1000
+			if CONFIRMA=3  goto 0500
+			write !											;[PULA LINHA]
+			write !, "OPÇÃO INVÁLIDA"
+			hang 2.0
+			goto 8000								
+			;	[INÍCIO DO PROGRAMA ESCREVENDO NA TELA SOBRE O PROGRAMA]
+9000		write #											;[LIMPA TELA]
+			write !, "------ CADASTRO DE EDITORA ------"
+			write !											;[PULA LINHA]
+			write !, "DIGITE CÓDIGO DA EDITORA:"
+			write !													;[PULA LINHA]
+			read EDITORA
+			if EDITORA'?.N ! (EDITORA="") do  goto 9000
+			. write !													;[PULA LINHA]
+			. write !, "DIGITE APENAS NÚMEROS..."
+			. hang 2.0
+			if $DATA(^YYRPSEDT001(EDITORA)) do  goto 8000
+			. write !													;[PULA LINHA]
+			. write !, "CONSULTANDO EDITORAS CADASTRADAS... AGUARDE..."
+			. hang 2.0
+			write !													;[PULA LINHA]
+			write !													;[PULA LINHA]
+			write !, "EDITORA NÃO CADASTRADA!"
+			hang 2.0
+			goto 0500
+			;
+			;	[FIM DO PROGRAMA]
+9999		write #											;[LIMPA TELA]
+			write !, "------ CADASTRO DE EDITORA ------"
+			write !
+			write !, "OBRIGADO POR UTILIZAR O PROGRAMA!"
+			write !											;[PULA LINHA]
+			quit
+			;	[EXCLUIR DADOS DA GLOBAL]
+EXCLUIR		write #											;[LIMPA TELA]
+			write !, "------ CADASTRO DE EDITORA ------"
+			write !
+			kill ^YYRPSEDT001(idEditora)
+			write !											;[PULA LINHA]
+			write !, "DADOS EXCLUÍDOS COM SUCCESSO!"
+			hang 2.0
+			goto 9000^YYRPSBIB001
+			;
+
+
+

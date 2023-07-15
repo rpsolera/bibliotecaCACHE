@@ -1,0 +1,244 @@
+IRIS for Windows^MAC^routine output by %apiRTN^^~Format=IRIS.S~^RAW
+%RO on 14 Jul 2023 09:56:01PM
+YYRPSCLI001^MAC^^66669,70079.5052255^0
+YYRPSCLI001	;	[ROTINA CADASTRO DE CLIENTE]
+			;
+			;
+			;
+			;	[LABEL 0000 - VARIÁVEIS DA ROTINA]
+0000		     new CLIENTE, idCliente, nomeCliente, dataNascCliente, idadeCliente, cpfCliente, validaCPF, cpfRepetido, enderecoCliente, CONFIRMA, DADOS
+			;
+			;
+			;
+			;
+			goto 9000
+			;	[INÍCIO DO PROGRAMA - LABEL 0500 / 9000]
+0500		     write #									;[LIMPA TELA]
+			write #											;[LIMPA TELA]
+			write !, "------ CADASTRO DE CLIENTES ------"
+			write !
+			set clientes=""
+			set codClientes=""
+			for  set clientes=$ORDER(^YYRPSCLI001(clientes)) quit:clientes=""  do
+			. set codClientes=$INCREMENT(codClientes)
+			set idCliente = codClientes + 1
+			goto 1000
+			;	[LABEL 1000 - NOME DO CLIENTE]
+1000		     write #									;[LIMPA TELA]
+			write !									;[PULA LINHA]
+			write !, "------ CADASTRO DE CLIENTE ------"
+			write !									;[PULA LINHA]
+			write !, "CÓDIGO DO CLIENTE: "_idCliente
+			write !, "DIGITE O NOME DO CLIENTE:"
+			write !									;[PULA LINHA]
+			read nomeCliente
+			if nomeCliente'?.N  goto 1500
+			write !									;[PULA LINHA]
+			write !, "NOME NÃO PODE CONTER NÚMEROS..."
+			hang 2.0
+			goto 1000
+			;
+			;	[LABEL 1500 - DATA DE NASCIMENTO DO CLIENTE]
+1500		     write #									;[LIMPA TELA]
+			write !									;[PULA LINHA]
+			write !, "------ CADASTRO DE CLIENTE ------"
+			write !									;[PULA LINHA]
+			write !, "DIGITE A DATA DE NASCIMENTO:"
+			write !									;[PULA LINHA]
+			read dataNascCliente
+			set idadeCliente = $PIECE($ZDATE($HOROLOG),"/",3)-$PIECE(dataNascCliente,"/",3)
+			if idadeCliente'?.N do  goto 1500
+			. write !									;[PULA LINHA]
+			. write !, "IDADE INVÁLIDA..."
+			. hang 2.0
+			if idadeCliente<16 do  goto 1500
+			. write !									;[PULA LINHA]
+			. write !, "APENAS CLIENTES MAIORES DE 16 ANOS ESTÃO LIBERADOS PARA RESERVAS DE LIVROS"
+			. hang 2.0
+			if idadeCliente>99 do  goto 1500
+			. write !									;[PULA LINHA]
+			. write !, "DATA DE ANIVERSÁRIO MAIOR QUE 99 ANOS"
+			. hang 2.0
+			;
+			;	[LABEL 1600 - CPF DO CLIENTE]
+1600		     write #									;[LIMPA TELA]
+			write !									;[PULA LINHA]
+			write !, "------ CADASTRO DE CLIENTE ------"
+			write !									;[PULA LINHA]
+			write !, "DIGITE O CPF DO CLIENTE:"
+			write !
+			read cpfCliente
+			set validaCPF = ($EXTRACT($PIECE(cpfCliente,".",1),1)*10) + ($EXTRACT($PIECE(cpfCliente,".",1),2)*9) +
+			($EXTRACT($PIECE(cpfCliente,".",1),3)*8) + ($EXTRACT($PIECE(cpfCliente,".",2),1)*7) + ($EXTRACT($PIECE(cpfCliente,".",2),2)*6) +
+			($EXTRACT($PIECE(cpfCliente,".",2),3)*5) + ($EXTRACT($PIECE(cpfCliente,".",3),1)*4) + ($EXTRACT($PIECE(cpfCliente,".",3),2)*3) +
+			($EXTRACT($PIECE(cpfCliente,".",3),3)*2) * 10 # 11
+			;
+			;
+			if $DECIMAL(validaCPF) '= $EXTRACT($PIECE(cpfCliente,".",3),5) do  goto 1600
+			. write !, "CPF INVÁLIDO! "
+			. hang 1.0
+			;
+			set validaCPF = ($EXTRACT($PIECE(cpfCliente,".",1),1)*11) + ($EXTRACT($PIECE(cpfCliente,".",1),2)*10)
+			set validaCPF = validaCPF + ($EXTRACT($PIECE(cpfCliente,".",1),3)*9) + ($EXTRACT($PIECE(cpfCliente,".",2),1)*8)
+			set validaCPF = validaCPF + ($EXTRACT($PIECE(cpfCliente,".",2),2)*7) +($EXTRACT($PIECE(cpfCliente,".",2),3)*6)
+			set validaCPF = validaCPF + ($EXTRACT($PIECE(cpfCliente,".",3),1)*5) + ($EXTRACT($PIECE(cpfCliente,".",3),2)*4)
+			set validaCPF = validaCPF + ($EXTRACT($PIECE(cpfCliente,".",3),3)*3) + ($EXTRACT($PIECE(cpfCliente,".",3),5)*2) * 10 # 11
+			;
+			if $DECIMAL(validaCPF) '= $EXTRACT($PIECE(cpfCliente,".",3),6) do  goto 1600 
+			. write !, "CPF INVÁLIDO! "
+			. hang 1.0
+			;
+			;
+			if $EXTRACT($PIECE(cpfCliente,".",1),1) = $EXTRACT($PIECE(cpfCliente,".",1),2) = $EXTRACT($PIECE(cpfCliente,".",1),3) do  goto 1600
+			. write !, "CPF INVÁLIDO! "
+			. hang 2.0
+			;
+			set cpfRepetido=0
+			set clientes=""
+			for  set clientes=$ORDER(^YYRPSCLI001(clientes)) quit:clientes=""  do
+			. if cpfCliente = $PIECE(^YYRPSCLI001(clientes),"^",3) do
+			. . set cpfRepetido = $GET(^YYRPSCLI001(clientes))
+     		. . write !, "CPF JÁ CADASTRADO, DIGITE OUTRO CPF."
+     		. . hang 2.5
+     		;
+   			if $PIECE(cpfRepetido,"^",3) = cpfCliente do  goto 1600
+   			;
+			;	[LABEL 1700 - ENDEREÇO DO CLIENTE]
+1700		     write #									;[LIMPA TELA]
+			write !									;[PULA LINHA]
+			write !, "------ CADASTRO DE CLIENTE ------"
+			write !									;[PULA LINHA]
+			write !, "DIGITE O ENDEREÇO DO CLIENTE:"
+			write !									;[PULA LINHA]
+			read enderecoCliente
+			if enderecoCliente'?.N do  goto 3000
+			write !									;[PULA LINHA]
+			write !, "ENDEREÇO NÃO PODE CONTER APENAS NÚMEROS..."
+			hang 2.5
+			goto 1700
+			;
+			;	[LABEL 3000 - CONFIRMAÇÃO PARA SALVAR DADOS NA GLOBAL]
+3000		     write #									;[LIMPA TELA]
+			write !									;[PULA LINHA]
+			write !, "------ CADASTRO DE CLIENTE ------"
+			write !									;[PULA LINHA]
+			write !, "VALIDE OS DADOS ABAIXO:"
+			write !									;[PULA LINHA]
+			write !, "CÓDIGO DO CLIENTE: "_idCliente
+			write !, "NOME DO CLIENTE: "_nomeCliente
+			write !, "DATA DE NASCIMENTO DO CLIENTE: "_dataNascCliente
+			write !, "CPF DO CLIENTE: "_cpfCliente
+			write !, "ENDEREÇO DO CLIENTE: "_enderecoCliente
+			write !
+			write !, "DESEJA SALVAR OS DADOS ACIMA?[S/N]"
+			write !
+			read CONFIRMA
+			if $ZCONVERT(CONFIRMA,"l")="s" ! ($ZCONVERT(CONFIRMA,"l")="sim")  goto 3100
+			if $ZCONVERT(CONFIRMA,"l")="n" ! ($ZCONVERT(CONFIRMA,"l")="nao")  goto 9000^YYRPSBIB001
+			write !									;[PULA LINHA]
+			write !, "OPÇÃO INVÁLIDA!"
+			hang 2.5
+			goto 3000
+			;
+			;	[LABEL 3100 - SALVA OS DADOS NA GLOBAL]
+3100		     write #									;[LIMPA TELA]
+			write !									;[PULA LINHA]
+			write !, "------ CADASTRO DE CLIENTE ------"
+			write !									;[PULA LINHA]
+			set $PIECE(DADOS,"^",1)=nomeCliente
+			set $PIECE(DADOS,"^",2)=dataNascCliente
+			set $PIECE(DADOS,"^",3)=cpfCliente
+			set $PIECE(DADOS,"^",4
+			)=enderecoCliente
+			set ^YYRPSCLI001(idCliente)=DADOS
+			write !									;[PULA LINHA]
+			write !, "DADOS SALVOS COM SUCESSO..."
+			write !									;[PULA LINHA]
+			write !, "DESEJA CONTINUAR CADASTRANDO CLIENTES?[S/N]"
+			write !									;[PULA LINHA]
+			read CONFIRMA
+			if $ZCONVERT(CONFIRMA,"l")="s" ! ($ZCONVERT(CONFIRMA,"l")="sim")  goto 0500
+			if $ZCONVERT(CONFIRMA,"l")="n" ! ($ZCONVERT(CONFIRMA,"l")="nao")  goto 9000^YYRPSBIB001
+			write !									;[PULA LINHA]
+			write !, "OPÇÃO INVÁLIDA"
+			hang 2.0
+			goto 3100	
+			;
+			;	[LABEL 8000 - CONSULTA DADOS JÁ CADASTRADOS NA TABELA]
+8000			write #									;[LIMPA TELA]
+			write !									;[PULA LINHA]
+			write !, "------ CADASTRO DE CLIENTE ------"
+			write !									;[PULA LINHA]
+			set DADOS=$GET(^YYRPSCLI001(CLIENTE))
+			write !, "CÓDIGO JÁ CONTÉM CLIENTE CADASTRADO"
+			write !									;[PULA LINHA]
+			write !, "CÓDIGO DO CLIENTE: "_CLIENTE
+			write !, "NOME DO CLIENTE: "_$PIECE(DADOS,"^",1)
+			write !, "DATA DE NASCIMENTO DO CLIENTE: "_$PIECE(DADOS,"^",2)
+			write !, "CPF DO CLIENTE: "_$PIECE(DADOS,"^",3)
+			write !									;[PULA LINHA]
+			write !, "DESEJA ALTERAR OS DADOS CADASTRAIS?[S/N]"
+			write !									;[PULA LINHA]
+			read CONFIRMA
+			if $ZCONVERT(CONFIRMA,"l")="s" ! ($ZCONVERT(CONFIRMA,"l")="sim")  goto 1000
+			if $ZCONVERT(CONFIRMA,"l")="n" ! ($ZCONVERT(CONFIRMA,"l")="nao")  goto EXCLUIR
+			write !,"OPÇÃO INVÁLIDA!"
+			hang 2.5												
+			;	[LABEL 9000 - INÍCIO DO PROGRAMA - TELA DE CONFIRMAÇÃO]
+9000		write #											;[LIMPA TELA]
+			write !, "------ CADASTRO DE CLIENTES ------"
+			write !											;[PULA LINHA]
+			write !, "DIGITE CÓDIGO DO CLIENTE:"
+			write !													;[PULA LINHA]
+			read CLIENTE
+			if CLIENTE'?.N ! (CLIENTE="") do  goto 9000
+			. write !													;[PULA LINHA]
+			. write !, "DIGITE APENAS NÚMEROS..."
+			. hang 2.0
+			if $DATA(^YYRPSCLI001(CLIENTE)) do  goto 8000
+			. write !													;[PULA LINHA]
+			. write !, "CONSULTANDO CLIENTES CADASTRADOS... AGUARDE..."
+			. hang 2.0
+			write !													;[PULA LINHA]
+			write !													;[PULA LINHA]
+			write !, "CLIENTE NÃO CADASTRADO!"
+			hang 2.0
+			goto 0500
+			;	[LABEL 9999 - FIM DO PROGRAMA]
+9999		     write #									;[LIMPA TELA]
+			write !									;[PULA LINHA]
+			write !, "------ CADASTRO DE CLIENTE ------"
+			write !
+			write !, "OBRIGADO POR UTILIZAR O PROGRAMA"
+			;
+			;
+			quit
+			;	[LABEL EXCLUIR - PERGUNTA AO USUÁRIO SE DESEJA EXCLUIR REGISTRO DA GLOBAL]
+EXCLUIR		write #									;[LIMPA TELA]
+			write !									;[PULA LINHA]
+			write !, "------ CADASTRO DE CLIENTE ------"
+			write !
+			set DADOS=$GET(^YYRPSCLI001(CLIENTE))
+			write !, "CÓDIGO JÁ CONTÉM CLIENTE CADASTRADO"
+			write !									;[PULA LINHA]
+			write !, "CÓDIGO DO CLIENTE: "_CLIENTE
+			write !, "NOME DO CLIENTE: "_$PIECE(DADOS,"^",1)
+			write !, "DATA DE NASCIMENTO DO CLIENTE: "_$PIECE(DADOS,"^",2)
+			write !, "CPF DO CLIENTE: "_$PIECE(DADOS,"^",3)
+			write !									;[PULA LINHA]
+			write !, "DESEJA EXCLUIR OS DADOS CADASTRAIS?[S/N]"
+			write !									;[PULA LINHA]
+			read CONFIRMA
+			if $ZCONVERT(CONFIRMA,"l")="s" ! ($ZCONVERT(CONFIRMA,"l")="sim") do  goto 9000
+			. KILL ^YYRPSCLI001(idCliente)
+			. write !, "DADOS EXCLUÍDOS COM SUCESSO!"
+			. hang 2.0
+			if $ZCONVERT(CONFIRMA,"l")="n" ! ($ZCONVERT(CONFIRMA,"l")="nao")  goto 9000^YYRPSBIB001
+			;
+			write !									;[PULA LINHA]
+			write !, "OPÇÃO INVÁLIDA"
+			hang 2.5
+			;
+
+
+

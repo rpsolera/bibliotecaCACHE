@@ -1,0 +1,325 @@
+IRIS for Windows^MAC^routine output by %apiRTN^^~Format=IRIS.S~^RAW
+%RO on 14 Jul 2023 09:57:16PM
+YYRPSRES001^MAC^^66669,69077.4832699^0
+YYRPSRES001		;	[ROTINA RESERVA DE LIVROS]
+				;
+				;
+				;
+				;	[LABEL 0000 - INICIA VARIÁVEIS - ENCAMINHA PARA 9000]
+0000			new idReserva, codCliente, codLivro, datAtual, diasReserva, dataEntrega, situacaoEntrega, CONFIRMA, DADOS, RESERVA
+				;
+				;
+				;
+				goto 9000
+				;
+				;	[LABEL 0500 - CADASTRA NOVA RESERVA OU SAI DO ROTINA DE RESERVA]
+0500			write #
+				write !													;[PULA LINHA]
+				write !, "------ BIBLIOTECA IRIS ------"
+				write !													;[PULA LINHA]
+				write !, "DESEJA CADASTRAR UMA NOVA RESERVA?[S/N]"
+				write !													;[PULA LINHA]
+				read CONFIRMA
+				if $ZCONVERT(CONFIRMA,"l")="s" ! ($ZCONVERT(CONFIRMA,"l")="sim") do  goto 1000
+				. write !													;[PULA LINHA]
+				. write !, "INICIANDO..."
+				. hang 1.5
+				if $ZCONVERT(CONFIRMA,"l")="n" ! ($ZCONVERT(CONFIRMA,"l")="nao") do  goto 9000^YYRPSBIB001
+				. write !													;[PULA LINHA]
+				. write !, "ENCERRANDO RESERVAS..."
+				. hang 2.0
+				write !													;[PULA LINHA]
+				write !, "OPÇÃO INVÁLIDA!"
+				hang 1.5
+				goto 0500
+				;
+				;	[LABEL 1000 - CADASTRO DE RESERVAS]
+1000			write #
+				write !													;[PULA LINHA]
+				write !, "------ BIBLIOTECA IRIS ------"
+				write !													;[PULA LINHA]
+				set reservas=""
+				set codReserva=""
+				for  set reservas=$ORDER(^YYRPSRES001(reservas)) quit:reservas=""  do
+				. set codReserva=$INCREMENT(codReserva)
+				set idReserva = codReserva + 1
+				write !													;[PULA LINHA]
+				write !, "RESERVA NÚMERO: "_idReserva
+				write !													;[PULA LINHA]
+				write !, "DIGITE O CÓDIGO DO CLIENTE, CASO NÃO TENHA DIGITE 0: "
+				write !													;[PULA LINHA]
+				read codCliente
+				if codCliente'?.N do  goto 1000
+				. write !													;[PULA LINHA]
+				. write !, "CÓDIGO DO CLIENTE DEVE CONTER APENAS NÚMEROS!"
+				. hang 1.5
+				if codCliente = "" do  goto 1000
+				. write !													;[PULA LINHA]
+				. write !, "CÓDIGO DO CLIENTE INVÁLIDO"
+				. hang 1.5
+				if codCliente = 0 do  goto 3100
+				. write !													;[PULA LINHA]
+				. write !, "CONSULTANDO CLIENTES"
+				. hang 1.5
+				if $DATA(^YYRPSCLI001(codCliente)) do  goto 1100
+				. set nomeCliente = ""
+				. set Clientes = ""
+				. for  set Clientes=$ORDER(^YYRPSCLI001(Clientes)) quit:Clientes=""  do
+				. . set nomeCliente = $GET(^YYRPSCLI001(codCliente))
+				. set codCliente = $PIECE(nomeCliente,"^",1)
+				write !													;[PULA LINHA]
+				write !, "CLIENTE NÃO EXISTE"
+				hang 1.5
+				goto 1000
+				;
+				;	[LABEL 1100 - CADASTRA LIVRO PARA RESERVA]
+1100			write #
+				write !													;[PULA LINHA]
+				write !, "------ BIBLIOTECA IRIS ------"
+				write !													;[PULA LINHA]
+				write !, "DIGITE O CÓDIGO DO LIVRO OU DIGITE 0 PARA CONSULTAR OS LIVROS DISPONÍVEIS:"
+				write !													;[PULA LINHA]
+				read codLivro
+				if codLivro'?.N do  goto 1100
+				. write !													;[PULA LINHA]
+				. write !, "DIGITE APENAS NÚMEROS!"
+				. hang 1.5
+				if codLivro < 0 do  goto 1000
+				. write !													;[PULA LINHA]
+				. write !, "CÓDIGO DO LIVRO NÃO EXISTE!"
+				. hang 1.5
+				if codLivro = 0 do  goto 3200
+				. write !													;[PULA LINHA]
+				. write !, "CONSULTANDO LIVROS..."
+				. hang 1.5
+				if $DATA(^YYRPSLIV001(codLivro)) do  goto 1200
+				write !													;[PULA LINHA]
+				if codLivro = "" do  goto 1100
+				. write !, "CÓDIGO DO LIVRO NÃO EXISTE"
+				. hang 1.5
+				write !													;[PULA LINHA]
+				write !, "OPÇÃO INVÁLIDA"
+				hang 1.5
+				goto 1000
+				;
+				;	[LABEL 1200 - CADASTRA DIAS QUE DESEJA RESERVAR O LIVRO]
+1200			write #
+				write !													;[PULA LINHA]
+				write !, "------ BIBLIOTECA IRIS ------"
+				write !													;[PULA LINHA]
+				set nomeLivro = ""
+				set livros = ""
+				for  set livros=$ORDER(^YYRPSLIV001(livros)) quit:livros=""  do
+				. set nomeLivro = $GET(^YYRPSLIV001(codLivro))
+				set codLivro = $PIECE(nomeLivro,"^",1)
+				set reservaLivros=""
+				set livrosReservados=""
+				set diaDevolucao=""
+				set situacaoAtual=""
+				set acheiLivro=""
+				set acheiSituacao=""
+				for  set reservaLivros=$ORDER(^YYRPSRES001(reservaLivros)) quit:reservaLivros=""  do
+				. set livrosReservados = $GET(^YYRPSRES001(reservaLivros))
+				. set diaDevolucao = $GET(^YYRPSRES001(reservaLivros))
+				. set situacaoAtual= $GET(^YYRPSRES001(reservaLivros))
+				. set situacaoAtual= $PIECE(^YYRPSRES001(reservaLivros),"^",4)
+				. set diaDevolucao = $PIECE(^YYRPSRES001(reservaLivros),"^",3)
+				. set livrosReservados = $PIECE(^YYRPSRES001(reservaLivros),"^",2)
+				. if livrosReservados = codLivro do
+				. . set acheiLivro = livrosReservados
+				. . set acheiData = diaDevolucao
+				. . set acheiSituacao = situacaoAtual
+				if acheiLivro = codLivro & (acheiSituacao = "EM ABERTO") ! (acheiSituacao = "EM ATRASO") do  goto 1100
+				. write !												;[PULA LINHA]
+				. write !, "ESTE LIVRO JÁ ENCONTRA-SE RESERVADO ATÉ O DIA: "_acheiData
+				. hang 2.5
+				write !, "QUANTOS DIAS DESEJA FICAR COM O LIVRO?"
+				write !													;[PULA LINHA]
+				read diasReserva
+				if diasReserva'?.N !(diasReserva="") do  goto 1200
+				. write !												;[PULA LINHA]
+				. write !, "DIGITE APENAS NÚMEROS..."
+				. hang 1.5
+				set datAtual = $HOROLOG
+				set dataEntrega = datAtual+diasReserva
+				set dataEntrega = $ZDATE(dataEntrega,4)
+				write !, "ENTREGA DEVERÁ SER REALIZADA DIA: "_dataEntrega
+				write !													;[PULA LINHA]
+				write !, "CONFIRMA A RESERVA?[S/N]"
+				read CONFIRMA
+				if $ZCONVERT(CONFIRMA,"l")="s" ! ($ZCONVERT(CONFIRMA,"l")="s") do  goto 8000
+				. write !												;[PULA LINHA]
+				. write !, "SALVANDO RESERVA..."
+				. hang 1.5
+				if $ZCONVERT(CONFIRMA,"l")="n" ! ($ZCONVERT(CONFIRMA,"l")="nao") do  goto 9000^YYRPSBIB001
+				. write !												;[PULA LINHA]
+				. write !, "RESERVA CANCELADA, RETORNANDO A TELA INICIAL..."
+				. hang 1.5
+				write !												;[PULA LINHA]
+				write !, "OPÇÃO INVÁLIDA"
+				hang 1.5
+				goto 1200
+				;
+				;	[LABEL 3000 - CONSULTA RESERVAS]
+3000			write #
+				write !													;[PULA LINHA]
+				write !, "------ BIBLIOTECA IRIS ------"
+				write !													;[PULA LINHA]
+				write !, "RESERVA NÚMERO: "_RESERVA
+				write !, "CLIENTE: "_$PIECE(^YYRPSRES001(RESERVA),"^",1)
+				write !, "LIVRO RESERVADO: "_$PIECE(^YYRPSRES001(RESERVA),"^",2)
+				write !, "SITUAÇÃO: "_$PIECE(^YYRPSRES001(RESERVA),"^",4)
+				write !													;[PULA LINHA]
+				write !, "O QUE DESEJA FAZER?"
+				write !													;[PULA LINHA]
+				write !, "[1] ENTREGAR LIVRO "
+				write !, "[2] FICAR MAIS DIAS"
+				write !, "[3] CADASTRAR NOVA RESERVA"
+				write !, "[4] RETORNAR AO MENU INICIAL"
+				write !													;[PULA LINHA]
+				read CONFIRMA
+				if CONFIRMA'?.N ! (CONFIRMA="") do  goto 3000
+				. write !													;[PULA LINHA]
+				. write !, "OPÇÃO INVÁLIDA"
+				. hang 1.5
+				if $PIECE(^YYRPSRES001(RESERVA),"^",4) = "ENTREGUE" do  goto 9000^YYRPSBIB001
+				. write !													;[PULA LINHA]
+				. write !, "RESERVA JÁ ESTÁ FECHADA!"
+				. hang 2.0
+				if CONFIRMA = 1 do  goto 9000^YYRPSBIB001
+				. write !													;[PULA LINHA]
+				. set $PIECE(^YYRPSRES001(RESERVA),"^",4)="ENTREGUE"
+				. write !, "RESERVA FECHADA, LIVRO ENTREGUE!"
+				. write !, "OBRIGADO..."
+				. hang 1.5
+				if CONFIRMA = 2 do  goto 9000^YYRPSBIB001
+				. write !													;[PULA LINHA]
+				. write !, "QUANTOS DIAS DESEJA ACRESCENTAR?"
+				. write !													;[PULA LINHA]
+				. read diasReserva
+				. set datAtual = $HOROLOG
+				. set dataEntrega = datAtual+diasReserva
+				. set dataEntrega = $ZDATE(dataEntrega,4)
+				. write !													;[PULA LINHA]
+				. set $PIECE(^YYRPSRES001(RESERVA),"^",3)=dataEntrega
+				. write !													;[PULA LINHA]
+				. write !, "ENTREGA DEVE SER REALIZADA ATÉ DIA: "_dataEntrega
+				. write !, "OBRIGADO..."
+				. hang 2.5
+				if CONFIRMA = 3 do  goto 1000
+				. write !													;[PULA LINHA]
+				. write !, "INICIANDO CADASTRO DE RESERVA..."
+				. hang 1.5
+				if CONFIRMA = 4 do  goto 9000^YYRPSBIB001
+				. write !													;[PULA LINHA]
+				. write !, "RETORNANDO AO MENU INICIAL..."
+				. hang 1.5
+				write !													;[PULA LINHA]
+				write !, "OPÇÃO INVÁLIDA"
+				hang 2.5
+				goto 3000
+				;
+				;	[LABEL 3100 - CONSULTA CLIENTES]
+3100			write #
+				write !													;[PULA LINHA]
+				write !, "------ BIBLIOTECA IRIS ------"
+				write !
+				write !, "CLIENTES CADASTRADOS: "
+				set codigos=""
+				set clientes=""
+				for  set clientes=$ORDER(^YYRPSCLI001(clientes)) quit:clientes=""  do
+				. write !												;[PULA LINHA]
+				. set codigos = $INCREMENT(codigos)
+				. write !, "["_codigos_"] "_$PIECE(^YYRPSCLI001(clientes),"^",1)
+				write !												;[PULA LINHA]
+				write !, "O CLIENTE QUE DESEJA ESTÁ CADASTRADO?[S/N]"
+				write !												;[PULA LINHA]
+				read CONFIRMA
+				if $ZCONVERT(CONFIRMA,"l")="s" ! ($ZCONVERT(CONFIRMA,"l")="s") do  goto 1000
+				. write !												;[PULA LINHA]
+				. write !, "RETORNANDO A TELA DE RESERVAS..."
+				. hang 1.5
+				if $ZCONVERT(CONFIRMA,"l")="n" ! ($ZCONVERT(CONFIRMA,"l")="nao") do  goto 9000^YYRPSBIB001
+				. write !												;[PULA LINHA]
+				. write !, "CADASTRE UM CLIENTE ANTES DE CONTINUAR..."
+				. hang 1.5
+				write !												;[PULA LINHA]
+				write !, "OPÇÃO INVÁLIDA"
+				hang 1.5
+				goto 3100
+				;	[LABEL 3200 - CONSULTA LIVROS]
+3200			write #
+				write !													;[PULA LINHA]
+				write !, "------ BIBLIOTECA IRIS ------"
+				write !
+				write !, "LIVROS CADASTRADOS: "
+				set codigos=""
+				set livros=""
+				for  set livros=$ORDER(^YYRPSLIV001(livros)) quit:livros=""  do
+				. write !												;[PULA LINHA]
+				. set codigos = $INCREMENT(codigos)
+				. write !, "["_codigos_"] "_$PIECE(^YYRPSLIV001(livros),"^",1)
+				write !												;[PULA LINHA]
+				write !, "O LIVRO QUE DESEJA ESTÁ CADASTRADO?[S/N]"
+				write !												;[PULA LINHA]
+				read CONFIRMA
+				if $ZCONVERT(CONFIRMA,"l")="s" ! ($ZCONVERT(CONFIRMA,"l")="s") do  goto 1100
+				. write !												;[PULA LINHA]
+				. write !, "RETORNANDO A TELA DE RESERVAS..."
+				. hang 1.5
+				if $ZCONVERT(CONFIRMA,"l")="n" ! ($ZCONVERT(CONFIRMA,"l")="nao") do  goto 9000^YYRPSBIB001
+				. write !												;[PULA LINHA]
+				. write !, "CADASTRE UM LIVRO ANTES DE CONTINUAR..."
+				. hang 1.5
+				write !												;[PULA LINHA]
+				write !, "OPÇÃO INVÁLIDA"
+				hang 1.5
+				goto 3100
+				;
+				;	[LABEL 8000 - SALVA A RESERVA]
+8000			write #
+				write !													;[PULA LINHA]
+				write !, "------ BIBLIOTECA IRIS ------"
+				write !
+				set datAtual = $ZDATE($HOROLOG)												;[PULA LINHA]
+				if dataEntrega < datAtual do
+				. write !												;[PULA LINHA]
+				. set situacaoEntrega = "EM ATRASO"
+				if dataEntrega >= datAtual do
+				. write !												;[PULA LINHA]
+				. set situacaoEntrega = "EM ABERTO"
+				set $PIECE(DADOS,"^",1)=codCliente
+				set $PIECE(DADOS,"^",2)=codLivro
+				set $PIECE(DADOS,"^",3)=dataEntrega
+				set $PIECE(DADOS,"^",4)=situacaoEntrega
+				set ^YYRPSRES001(idReserva)=DADOS
+				write !, "RESERVA NÚMERO "_idReserva_" SALVA COM SUCESSO!"
+				write !													;[PULA LINHA]
+				write !, "OBRIGADO..."
+				hang 2.0
+				goto 9000^YYRPSBIB001
+				;	[LABEL 9000 - VERIFICA RESERVA]
+9000			write #
+				write !													;[PULA LINHA]
+				write !, "------ BIBLIOTECA IRIS ------"
+				write !													;[PULA LINHA]
+				write !, "DIGITE O NÚMERO DA RESERVA:"
+				write !													;[PULA LINHA]
+				read RESERVA
+				if RESERVA'?.N ! (RESERVA="") do  goto 9000
+				. write !													;[PULA LINHA]
+				. write !, "DIGITE APENAS NÚMEROS..."
+				. hang 2.0
+				if $DATA(^YYRPSRES001(RESERVA)) do  goto 3000
+				. write !													;[PULA LINHA]
+				. write !, "CONSULTANDO RESERVA... AGUARDE..."
+				. hang 2.0
+				write !													;[PULA LINHA]
+				write !													;[PULA LINHA]
+				write !, "RESERVA NÃO EXISTE!"
+				hang 2.0
+				goto 9000^YYRPSBIB001
+				;
+
+
+

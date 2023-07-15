@@ -1,0 +1,159 @@
+IRIS for Windows^MAC^routine output by %apiRTN^^~Format=IRIS.S~^RAW
+%RO on 14 Jul 2023 09:56:45PM
+YYRPSGEN001^MAC^^66669,69597.8358292^0
+YYRPSGEN001	;	[ROTINA CADASTRO DE GÊNERO LIVROS]
+			;
+			;
+			;
+			;	[INICIA VARIÁVEIS DA ROTINA E LEVA A LABEL 9000]
+0000		new (idGenero,nomeGenero,CONFIRMA,DADOS, GENERO)
+			;
+			;
+			;
+			;
+			goto 9000
+			;
+			;	[LABEL 0500 INÍCIO DO PROGRAMA - CÓDIGO DO GÊNERO]
+0500		write #											;[LIMPA TELA]
+			write !, "------ CADASTRO DE GÊNERO ------"
+			write !
+			set generos=""
+			set codGeneros=""
+			for  set generos=$ORDER(^YYRPSGEN001(generos)) quit:generos=""  do
+			. set codGeneros=$INCREMENT(codGeneros)
+			set idGenero = codGeneros + 1
+			goto 1000
+			;
+			;	[LABEL 1000 - DESCRIÇÃO DO GÊNERO]
+1000		write #											;[LIMPA TELA]
+			write !, "------ CADASTRO DE GÊNERO ------"
+			write !
+			write !													;[PULA LINHA]
+			write !, "CÓDIGO GÊNERO: "_idGenero
+			write !, "DESCRIÇÃO DO GÊNERO:"
+			write !											;[PULA LINHA]
+			read nomeGenero
+			;
+			if nomeGenero="" do  goto 1000
+			. write !											;[PULA LINHA]
+			. write !, "PREENCHA A DESCRIÇÃO."
+			. write !											;[PULA LINHA]
+			. hang 1.5
+			. write #											;[LIMPA TELA]
+			;
+			;	[LABEL 1500 - CONDIÇÃO PARA SALVAR DADOS NA GLOBAL]
+1500		write #											;[LIMPA TELA]
+			write !, "------ CADASTRO DE GÊNERO ------"
+			write !
+			write !											;[PULA LINHA]
+			write !, "DESEJA SALVAR OS DADOS ?[S/N]"
+			write !											;[PULA LINHA]
+			read CONFIRMA
+			;											;[LIMPA TELA]
+			if $ZCONVERT(CONFIRMA,"l")="sim" ! ($ZCONVERT(CONFIRMA,"l")="s") do  goto 3000
+			. write !											;[PULA LINHA]
+			. write !, "SALVANDO DADOS..."
+			. write !											;[PULA LINHA]
+			. hang 1.5
+			. write #											;[LIMPA TELA]
+			if $ZCONVERT(CONFIRMA,"l")="nao" ! ($ZCONVERT(CONFIRMA,"l")="n") do  goto 9000^YYRPSBIB001
+			. write !, "REINICIANDO PROGRAMA..."
+			. hang 1.5
+			write !											;[PULA LINHA]
+			write !, "OPÇÃO INVÁLIDA!"
+			goto 1500
+			;
+			;	[LABEL 3000 - SALVA DADOS NA GLOBAL]
+3000		write #											;[LIMPA TELA]
+			write !, "------ CADASTRO DE GÊNERO ------"
+			write !											;[PULA LINHA]
+			set $PIECE(DADOS,"^",1)=nomeGenero
+			set ^YYRPSGEN001(idGenero)=DADOS
+			write !, "DADOS SALVOS COM SUCESSO!"
+			write !											;[PULA LINHA]
+			write !, "CÓDIGO: "_idGenero
+			write !											;[PULA LINHA]
+			write !, "DESCRIÇÃO: "_$PIECE(^YYRPSGEN001(idGenero),"^",1)
+			write !, "DESEJA CADASTRAR UM NOVO GÊNERO?[S/N]"
+			write !											;[PULA LINHA]
+			read CONFIRMA
+			if $ZCONVERT(CONFIRMA,"l")="s" ! ($ZCONVERT(CONFIRMA,"l")="sim") do  goto 0500
+			. write !											;[PULA LINHA]
+			. write !, "UM INSTANTE..."
+			. hang 2.0
+			if $ZCONVERT(CONFIRMA,"l")="n" ! ($ZCONVERT(CONFIRMA,"l")="nao") do  goto 9000^YYRPSBIB001
+			. write !											;[PULA LINHA]
+			. write !, "ENCERRANDO..."
+			. hang 2.0
+			write !											;[PULA LINHA]
+			write !, "OPÇÃO INVÁLIDA!"
+			goto 3000
+			;
+			;	[CONSULTA DADOS NA TABELA]
+8000		write #											;[LIMPA TELA]
+			write !, "------ CADASTRO DE GÊNERO ------"
+			write !											;[PULA LINHA]
+			write !, "CÓDIGO: "_GENERO
+			write !											;[PULA LINHA]
+			write !, "DESCRIÇÃO: "_$PIECE(^YYRPSGEN001(GENERO),"^",1)
+			write !											;[PULA LINHA]
+			write !											;[PULA LINHA]
+			write !, "O QUE DESEJA FAZER?"
+			write !											;[PULA LINHA]
+			write !, "[1] EXCLUIR"
+			write !, "[2] ALTERAR"
+			write !, "[3] CADASTRAR NOVO GÊNERO"
+			write !											;[PULA LINHA]
+			write !, ":"
+			read CONFIRMA
+			if CONFIRMA=1  goto EXCLUIR
+			if CONFIRMA=2  goto 1000
+			if CONFIRMA=3  goto 0500
+			write !											;[PULA LINHA]
+			write !, "OPÇÃO INVÁLIDA"
+			hang 2.0
+			goto 8000								
+			;	[INÍCIO DO PROGRAMA ESCREVENDO NA TELA SOBRE O PROGRAMA]
+9000		write #											;[LIMPA TELA]
+			write !, "------ CADASTRO DE GÊNERO ------"
+			write !											;[PULA LINHA]
+			write !, "DIGITE CÓDIGO DO GÊNERO:"
+			write !													;[PULA LINHA]
+			read GENERO
+			if GENERO'?.N ! (GENERO="") do  goto 9000
+			. write !													;[PULA LINHA]
+			. write !, "DIGITE APENAS NÚMEROS..."
+			. hang 2.0
+			if $DATA(^YYRPSGEN001(GENERO)) do  goto 8000
+			. write !													;[PULA LINHA]
+			. write !, "CONSULTANDO GÊNEROS CADASTRADOS... AGUARDE..."
+			. hang 2.0
+			write !													;[PULA LINHA]
+			write !													;[PULA LINHA]
+			write !, "GÊNERO NÃO CADASTRADO!"
+			hang 2.0
+			goto 0500
+			;
+			;
+			;
+			;	[FIM DO PROGRAMA]
+9999		write #											;[LIMPA TELA]
+			write !, "------ CADASTRO DE GÊNERO ------"
+			write !
+			write !, "OBRIGADO POR UTILIZAR O PROGRAMA!"
+			write !											;[PULA LINHA]
+			quit
+			;	[EXCLUIR DADOS DA GLOBAL]
+EXCLUIR		write #											;[LIMPA TELA]
+			write !, "------ CADASTRO DE GÊNERO ------"
+			write !
+			kill ^YYRPSGEN001(idGenero)
+			write !											;[PULA LINHA]
+			write !, "DADOS EXCLUÍDOS COM SUCCESSO!"
+			hang 2.0
+			goto 9000^YYRPSBIB001
+			;
+			
+
+
+

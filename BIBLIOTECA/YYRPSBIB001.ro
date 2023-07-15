@@ -1,0 +1,88 @@
+IRIS for Windows^MAC^routine output by %apiRTN^^~Format=IRIS.S~^RAW
+%RO on 14 Jul 2023 09:54:35PM
+YYRPSBIB001^MAC^^66669,70432.2333533^0
+YYBIB001	;	[ROTINA - BLIBLIOTECA]
+			;
+			;
+			;
+			;	[LABEL 0000 - INICIA VARIÁVEIS DA ROTINA/ENCAMINHA A LABEL 9000]
+0000		new opcao, CONFIRMA
+			;
+			;
+			;
+			goto 9000
+			;	[LABEL 9000 - CONDIÇÃO PARA INICIAR OU SAIR DO PROGRAMA]
+9000		write #															;[LIMPA TELA]
+			write !, "------ BIBLIOTECA VIRTUAL ------"
+			write !              											;[PULA LINHA]
+			write !, "ESCOLHA UMA OPÇÃO: "
+			write !              											;[PULA LINHA]
+			write !, "[1] - RESERVAR UM LIVRO"
+			write !, "[2] - CONSULTAR RESERVA"
+			write !, "[3] - CADASTRAR UM CLIENTE"
+			write !, "[4] - CADASTRAR UM LIVRO"
+			write !, "[5] - CADASTRAR UM AUTOR"
+			write !, "[6] - CADASTRAR UM GÊNERO"
+			write !, "[7] - CADASTRAR UMA EDITORA"
+			write !, "[8] - SAIR "
+			write !              											;[PULA LINHA]
+			read CONFIRMA
+			if CONFIRMA'?.N ! (CONFIRMA="") do  goto 9000
+			. write !              											;[PULA LINHA]
+			. write !, "OPÇÃO INVÁLIDA!"
+			. hang 2.0
+			if CONFIRMA < 1 ! (CONFIRMA > 8) do  goto 9000
+			. write !              											;[PULA LINHA]
+			. write !, "OPÇÃO INVÁLIDA!"
+			. hang 2.0
+			if CONFIRMA = 1 do  goto 1000^YYRPSRES001
+			. write !              											;[PULA LINHA]
+			. write !, "INICIANDO TELA DE RESERVAS..."
+			. hang 2.0
+			if CONFIRMA = 2 do  goto 9000^YYRPSRES001
+			. write !              											;[PULA LINHA]
+			. write !, "INICIANDO CONSULTA DE RESERVAS..."
+			. hang 2.0
+			if CONFIRMA = 3 do  goto 0500^YYRPSCLI001
+			. write !              											;[PULA LINHA]
+			. write !, "INICIANDO CADASTRO DE CLIENTE..."
+			. hang 2.0
+			if CONFIRMA = 4 do  goto 0500^YYRPSLIV001
+			. write !              											;[PULA LINHA]
+			. write !, "INICIANDO CADASTRO DE LIVRO..."
+			. hang 2.0
+			if CONFIRMA = 5 do  goto 0500^YYRPSAUT001
+			. write !              											;[PULA LINHA]
+			. write !, "INICIANDO CADASTRO DE AUTOR..."
+			. hang 2.0
+			if CONFIRMA = 6 do  goto 0500^YYRPSGEN001
+			. write !              											;[PULA LINHA]
+			. write !, "INICIANDO CADASTRO DE GÊNERO..."
+			. hang 2.0
+			if CONFIRMA = 7 do  goto 0500^YYRPSEDT001
+			. write !              											;[PULA LINHA]
+			. write !, "INICIANDO CADASTRO DE EDITORA"
+			. hang 2.0
+			if CONFIRMA = 8 do  goto 9999
+			. write !              											;[PULA LINHA]
+			. write !, "ENCERRANDO ROTINA..."
+			. hang 2.0
+			write !              											;[PULA LINHA]
+			write !, "OPÇÃO INVÁLIDA!"
+			goto 9000
+			;
+			;	[LABEL 9999 - FIM DA ROTINA]
+9999		write #															;[LIMPA TELA]
+			write !, "------ BIBLIOTECA VIRTUAL ------"
+			write !              											;[PULA LINHA]
+			write !, "OBRIGADO POR UTILIZAR A BIBLIOTECA VIRTUAL!"
+			write !              											;[PULA LINHA]
+			write !, "CRIADO POR: RODOLFO PITONDO SOLERA"
+			quit
+			;
+			
+			
+			
+
+
+

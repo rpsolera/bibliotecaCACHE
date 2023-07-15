@@ -1,0 +1,285 @@
+IRIS for Windows^MAC^routine output by %apiRTN^^~Format=IRIS.S~^RAW
+%RO on 14 Jul 2023 09:57:00PM
+YYRPSLIV001^MAC^^66669,69766.9680213^0
+YYRPSLIV001	;	[ROTINA CADASTRO DE LIVROS]
+			;
+			;
+			;
+			;	[LABEL 0000 - INÍCIO DO PROGRAMA - DECLARAÇÃO DE VARIÁVEIS]
+0000		new idLivro, nomeLivro, dataLanc, autorLivro, generoLivro, editoraLivro, CONFIRMA, DADOS, LIVRO
+			;
+			;
+			;
+			;
+			goto 9000
+			;
+			;	[LABEL 0500 - CADASTRA CÓDIGO DO LIVRO]
+0500		write #											;[LIMPA TELA]
+			write !, "------ CADASTRO DE LIVROS ------"
+			write !
+			set livros=""
+			set codLivros=""
+			for  set livros=$ORDER(^YYRPSLIV001(livros)) quit:livros=""  do
+			. set codLivros=$INCREMENT(codLivros)
+			set idLivro = codLivros + 1
+			goto 1000
+			;	[LABEL 1000 - CADASTRA O NOME DO LIVRO]
+1000		write #													;[LIMPA TELA]
+			write !, "------ CADASTRO DE LIVROS ------"
+			write !													;[PULA LINHA]
+			write !, "CÓDIGO LIVRO: "_idLivro
+			write !, "DIGITE O NOME DO LIVRO:"
+			write !													;[PULA LINHA]
+			read nomeLivro
+			write !
+			if nomeLivro = "" do  goto 1000
+			. write !, "NOME DO LIVRO NÃO PODE ESTAR EM BRANCO"
+			. write !													;[PULA LINHA]
+			. hang 2.5
+			;
+			;	[LABEL 1500 - CADASTRA DATA DE LANÇAMENTO DO LIVRO]
+1500		write #													;[LIMPA TELA]
+			write !, "------ CADASTRO DE LIVROS ------"
+			write !													;[PULA LINHA]
+			write !, "DIGITE O ANO DE LANÇAMENTO DO LIVRO:"
+			write !													;[PULA LINHA]
+			read dataLanc
+			write !
+			if dataLanc'?.N ! (dataLanc="") do  goto 1500
+			. write !, "ANO DE LANÇAMENTO DEVE CONTER APENAS NÚMEROS!"
+			. write !                                                   ;[PULA LINHA]
+			. hang 2.5
+			;
+			;	[LABEL 1600 - CADASTRA O AUTOR DO LIVRO BUSCANDO DA ROTINA ^YYRPSAUT001]
+1600		write #													;[LIMPA TELA]
+			write !, "------ CADASTRO DE LIVROS ------"
+			write !													;[PULA LINHA]
+			write !, "AUTORES CADASTRADOS:"
+			write !													;[PULA LINHA]
+			set autores=""
+			set codigos=""
+			for  set autores=$ORDER(^YYRPSAUT001(autores)) quit:autores=""  do
+			. set nomeAutor = $GET(^YYRPSAUT001(autores))
+			. set codigos=$INCREMENT(codigos)
+			. write !, "["_codigos_"] "_$PIECE(nomeAutor,"^",1)
+			. write !												;[PULA LINHA]
+			write !													;[PULA LINHA]
+			write !, "O AUTOR DESSE LIVRO ESTÁ CADASTRADO?[S/N]"
+			write !
+			read CONFIRMA
+			if $ZCONVERT(CONFIRMA,"l")="s" ! ($ZCONVERT(CONFIRMA,"l")="sim") do  goto 1700
+			. write !, "DIGITE O CÓDIGO DO AUTOR:"
+			. write !													;[PULA LINHA]
+			. read autorLivro
+			if $ZCONVERT(CONFIRMA,"l")="n" ! ($ZCONVERT(CONFIRMA,"l")="nao") do  goto 9000^YYRPSBIB001
+			. write !, "CADASTRE UM AUTOR..."
+			. hang 2.5
+			write !													;[PULA LINHA]
+			write !, "OPÇÃO INVÁLIDA!"
+			hang 1.5
+			goto 1600
+			;
+			;	[LABEL 1700 - CADASTRA O GÊNERO DO LIVRO BUSCANDO DA ROTINA ^YYRPSGEN001]
+1700		write #													;[LIMPA TELA]
+			write !, "------ CADASTRO DE LIVROS ------"
+			write !													;[PULA LINHA]
+			write !, "GÊNEROS CADASTRADOS:"
+			write !													;[PULA LINHA]
+			if $DATA(^YYRPSAUT001(autorLivro))=0 do  goto 1600
+			. write !												;[PULA LINHA]
+			. write !, "AUTOR NÃO CADASTRADO"
+			. hang 1.5
+			set generos=""
+			set codigos2=""
+			for  set generos=$ORDER(^YYRPSGEN001(generos)) quit:generos=""  do
+			. set nomeGenero = $GET(^YYRPSGEN001(generos))
+			. set codigos2=$INCREMENT(codigos2)
+			. write !, "["_codigos2_"] "_$PIECE(nomeGenero,"^",1)
+			. write !												;[PULA LINHA]
+			write !													;[PULA LINHA]
+			write !, "O GÊNERO DESSE LIVRO ESTÁ CADASTRADO?[S/N]"
+			write !
+			read CONFIRMA
+			if $ZCONVERT(CONFIRMA,"l")="s" ! ($ZCONVERT(CONFIRMA,"l")="sim") do  goto 1800
+			. write !, "DIGITE O CÓDIGO DO GÊNERO:"
+			. write !													;[PULA LINHA]
+			. read generoLivro
+			if $ZCONVERT(CONFIRMA,"l")="n" ! ($ZCONVERT(CONFIRMA,"l")="nao") do  goto 9000^YYRPSBIB001
+			. write !, "CADASTRE UM GÊNERO..."
+			. hang 2.5
+			write !													;[PULA LINHA]
+			write !, "OPÇÃO INVÁLIDA!"
+			hang 1.5
+			goto 1700
+			;
+			;	[LABEL 1700 - CADASTRA A EDITORA DO LIVRO BUSCANDO DA ROTINA ^YYRPSEDT001]
+			;
+1800		write #													;[LIMPA TELA]
+			write !, "------ CADASTRO DE LIVROS ------"
+			write !													;[PULA LINHA]
+			write !, "EDITORAS CADASTRADAS:"
+			write !													;[PULA LINHA]
+			if $DATA(^YYRPSGEN001(generoLivro))=0 do  goto 1700
+			. write !												;[PULA LINHA]
+			. write !, "GÊNERO NÃO CADASTRADO"
+			. hang 1.5
+			set editoras=""
+			set codigos3=""
+			for  set editoras=$ORDER(^YYRPSEDT001(editoras)) quit:editoras=""  do
+			. set nomeEditora = $GET(^YYRPSEDT001(editoras))
+			. set codigos3=$INCREMENT(codigos3)
+			. write !, "["_codigos3_"] "_$PIECE(nomeEditora,"^",1)
+			. write !												;[PULA LINHA]
+			write !													;[PULA LINHA]
+			write !, "A EDITORA DESSE LIVRO ESTÁ CADASTRADA?[S/N]"
+			write !
+			read CONFIRMA
+			if $ZCONVERT(CONFIRMA,"l")="s" ! ($ZCONVERT(CONFIRMA,"l")="sim") do  goto 3000
+			. write !, "DIGITE O CÓDIGO DA EDITORA:"
+			. write !													;[PULA LINHA]
+			. read editoraLivro
+			if $ZCONVERT(CONFIRMA,"l")="n" ! ($ZCONVERT(CONFIRMA,"l")="nao") do  goto 9000^YYRPSBIB001
+			. write !, "CADASTRE UMA EDITORA..."
+			. hang 2.5
+			write !													;[PULA LINHA]
+			write !, "OPÇÃO INVÁLIDA!"
+			hang 1.5
+			goto 1800
+			;
+			;	[LABEL 3000 - CADASTRA DADOS NA GLOBAL]
+3000		write #													;[LIMPA TELA]
+			write !, "------ CADASTRO DE LIVROS ------"
+			write !													;[PULA LINHA]
+			if $DATA(^YYRPSEDT001(editoraLivro))=0 do  goto 1800
+			. write !												;[PULA LINHA]
+			. write !, "EDITORA NÃO CADASTRADA"
+			. hang 1.5
+			write !, "CONFIRME AS INFORMAÇÕES ANTES DE SALVÁ-LAS:"
+			write !
+			write !, "CÓDIGO DO LIVRO: "_idLivro
+			write !, "NOME DO LIVRO: "_nomeLivro
+			write !, "ANO DE LANÇAMENTO: "_dataLanc
+			write !, "AUTOR: "_$PIECE(^YYRPSAUT001(autorLivro),"^",1)
+			write !, "GÊNERO: "_$PIECE(^YYRPSGEN001(generoLivro),"^",1)
+			write !, "EDITORA: "_$PIECE(^YYRPSEDT001(editoraLivro),"^",1)
+			write !													;[PULA LINHA]
+			write !													;[PULA LINHA]
+			write !, "DESEJA SALVAR OS DADOS ACIMA?[S/N]"
+			write !													;[PULA LINHA]
+			read CONFIRMA
+			if $ZCONVERT(CONFIRMA,"l")="s" ! ($ZCONVERT(CONFIRMA,"l")="sim") do  goto 3100
+			. write !													;[PULA LINHA]
+			. write !, "SALVANDO DADOS..."
+			. hang 1.5
+			if $ZCONVERT(CONFIRMA,"l")="n" ! ($ZCONVERT(CONFIRMA,"l")="nao") do  goto 9000^YYRPSBIB001
+			. write !													;[PULA LINHA]
+			. write !, "CANCELANDO..."
+			. hang 1.5
+			write !													;[PULA LINHA]
+			write !, "OPÇÃO INVÁLIDA!"
+			hang 1.5
+			goto 3000
+			;
+			;	[LABEL 3100 - SALVAR DADOS NA GLOBAL ^YYRPSLIV001]
+3100		write #													;[LIMPA TELA]
+			write !, "------ CADASTRO DE LIVROS ------"
+			write !
+			set $PIECE(DADOS,"^",1)=nomeLivro
+			set $PIECE(DADOS,"^",2)=dataLanc
+			set $PIECE(DADOS,"^",3)=$PIECE(^YYRPSAUT001(autorLivro),"^",1)
+			set $PIECE(DADOS,"^",4)=$PIECE(^YYRPSGEN001(generoLivro),"^",1)
+			set $PIECE(DADOS,"^",5)=$PIECE(^YYRPSEDT001(editoraLivro),"^",1)
+			write !													;[PULA LINHA]
+			set ^YYRPSLIV001(idLivro)=DADOS
+			write !													;[PULA LINHA]
+			write !, "DADOS SALVOS COM SUCESSO!!!"
+			hang 1.5
+			goto 9000^YYRPSBIB001
+			;
+			;	[LABEL 8000 - CONSULTA DADOS DA TABELA]
+			;	
+8000		write #													;[LIMPA TELA]
+			write !, "------ CADASTRO DE LIVROS ------"
+			write !
+			write !, "CADASTRO JÁ EXISTENTE PARA ESSE CÓDIGO:"
+			write !													;[PULA LINHA]
+			write !, "CÓDIGO DO LIVRO: "_LIVRO
+			write !, "NOME DO LIVRO: "_$PIECE(^YYRPSLIV001(LIVRO),"^",1)
+			write !, "ANO: "_$PIECE(^YYRPSLIV001(LIVRO),"^",2)
+			write !, "AUTOR: "_$PIECE(^YYRPSLIV001(LIVRO),"^",3)
+			write !, "GÊNERO: "_$PIECE(^YYRPSLIV001(LIVRO),"^",4)
+			write !, "EDITORA: "_$PIECE(^YYRPSLIV001(LIVRO),"^",5)
+			write !													;[PULA LINHA]
+			write !, "O QUE DESEJA FAZER?"
+			write !, "[1] ALTERAR CADASTRO"
+			write !, "[2] EXCLUIR CADASTRO"
+			write !, "[3] CADASTRAR NOVO LIVRO"
+			write !, "[4] SAIR DO PROGRAMA"
+			write !													;[PULA LINHA]
+			read CONFIRMA
+			if CONFIRMA'?.N ! (CONFIRMA="") do  goto 8000
+			. write !													;[PULA LINHA]
+			. write !, "OPÇÃO INVÁLIDA"
+			. hang 1.5
+			if CONFIRMA <1 ! (CONFIRMA >4) do  goto 8000
+			. write !													;[PULA LINHA]
+			. write !, "OPÇÃO INVÁLIDA"
+			. hang 1.5
+			if CONFIRMA = 1 do  goto 1000
+			. write !													;[PULA LINHA]
+			. write !, "UM INSTANTE..."
+			. hang 1.5
+			if CONFIRMA = 2 do  goto 9000
+			. write !													;[PULA LINHA]
+			. kill ^YYRPSLIV001(idLivro)
+			. write !, "EXCLUINDO CADASTRO..."
+			. hang 0.8
+			. write !													;[PULA LINHA]
+			. write !, "DADOS EXCLUÍDOS COM SUCESSO..."
+			if CONFIRMA = 3 do  goto 0500
+			. write !													;[PULA LINHA]
+			. write !, "INICIANDO..."
+			. hang 1.5
+			if CONFIRMA = 4 do  goto 9000^YYRPSBIB001
+			. write !													;[PULA LINHA]
+			. write !, "UM INSTANTE..."
+			. hang 1.5
+			write !													;[PULA LINHA]
+			write !, "OPÇÃO INVÁLIDA!"
+			hang 1.5
+			goto 8000
+			;	[LABEL 9000 - USUÁRIO INICIA OU NÃO O PROGRAMA]
+9000		write #											;[LIMPA TELA]
+			write !, "------ CADASTRO DE LIVROS ------"
+			write !											;[PULA LINHA]
+			write !, "DIGITE CÓDIGO DO LIVRO:"
+			write !													;[PULA LINHA]
+			read LIVRO
+			if LIVRO'?.N ! (LIVRO="") do  goto 9000
+			. write !													;[PULA LINHA]
+			. write !, "DIGITE APENAS NÚMEROS..."
+			. hang 2.0
+			if $DATA(^YYRPSLIV001(LIVRO)) do  goto 8000
+			. write !													;[PULA LINHA]
+			. write !, "CONSULTANDO LIVROS CADASTRADOS... AGUARDE..."
+			. hang 2.0
+			write !													;[PULA LINHA]
+			write !													;[PULA LINHA]
+			write !, "LIVRO NÃO CADASTRADO!"
+			hang 2.0
+			goto 0500
+			;
+			;	[LABEL 9999 - FIM DO PROGRAMA]
+9999		write #													;[LIMPA TELA]
+			write !, "------ CADASTRO DE LIVROS ------"
+			write !													;[PULA LINHA]
+			write !, "OBRIGADO POR UTILIZAR O PROGRAMA!"
+			write !
+			;
+			;
+			quit
+			;
+.
+
+
+
